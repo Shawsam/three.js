@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+</head>
+<body>
+    
+</body>
+<script type="module">
+    import * as THREE from 'https://threejs.org/build/three.module.js'
+    import { OrbitControls } from 'https://threejsfundamentals.org/threejs/resources/threejs/r132/examples/jsm/controls/OrbitControls.js'
+    
+    // 创建场景
+    const scene = new THREE.Scene();
+    scene.add(new THREE.AxesHelper(1000))
+
+    // 创建相机
+    const camera = new THREE.PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 0.1, 1000 );
+    camera.position.set(0, 0, 40)                  //位置  默认原点
+    // // camera.up.set(0, 0, 30)                  //相机朝向 默认y轴
+    // camera.lookAt(new THREE.Vector3(0, 0, 0));  //焦点  默认原点
+
+    
+    // 渲染器
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize( window.innerWidth, window.innerHeight );
+    document.body.appendChild( renderer.domElement );
+
+    // const geometry = new THREE.BoxGeometry( 10, 10, 10 );
+    // const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+    // const cube = new THREE.Mesh( geometry, material );
+
+    const geometry = new THREE.BoxGeometry( 10, 10, 10 );
+    let loader = new THREE.TextureLoader();
+    let texture = loader.load('./X.jpg')
+    let material1 = new THREE.MeshBasicMaterial( {map: texture} );
+    let material2 = new THREE.MeshBasicMaterial( {color: 'grey'} );
+    let material3 = new THREE.MeshBasicMaterial( {color: 'lightblue'} );
+
+    let materials = []
+    materials.push(material1, material2, material3, material1, material2, material3)
+    let cube = new THREE.Mesh( geometry, materials );
+
+    scene.add( cube );
+
+
+    function animate() {
+        requestAnimationFrame( animate );
+
+        cube.rotation.x += 0.01;
+        cube.rotation.y += 0.01;
+
+        renderer.render( scene, camera );
+    }
+
+    animate();
+</script>
+
+</html>

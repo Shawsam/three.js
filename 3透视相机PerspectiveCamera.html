@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>学习</title>
+  </head>
+  <body>
+    <input id="cameraBol" type="button" value="切换相机" />
+    <script type="module">
+      import { GUI } from 'https://threejsfundamentals.org/threejs/../3rdparty/dat.gui.module.js'
+      import * as THREE from 'https://threejs.org/build/three.module.js'
+      import { OrbitControls } from 'https://threejsfundamentals.org/threejs/resources/threejs/r132/examples/jsm/controls/OrbitControls.js'
+
+      // 渲染器
+      const renderer = new THREE.WebGLRenderer();
+      renderer.setSize( window.innerWidth, window.innerHeight );
+      document.body.appendChild( renderer.domElement );
+
+      const fov = 50 // 视野范围
+      const aspect =  window.innerWidth / window.innerHeight // 相机默认值 画布的宽高比
+      const near = 1 // 近平面
+      const far = 100 // 远平面
+      // 透视投影相机
+      const camera = new THREE.PerspectiveCamera(fov, aspect, near, far)  
+      camera.position.set(10, 10, 10)  //位置
+      camera.lookAt(0, 0, 0)
+
+      // 场景
+      const scene = new THREE.Scene()
+      scene.background = new THREE.Color('black')
+      scene.add(new THREE.AxesHelper(1000))
+
+      {
+        // 地面 平铺
+        const planeSize = 10
+        const loader = new THREE.TextureLoader()
+        const texture = loader.load('https://threejs.org/manual/examples/resources/images/checker.png')
+        texture.wrapS = THREE.RepeatWrapping
+        texture.wrapT = THREE.RepeatWrapping
+        texture.magFilter = THREE.NearestFilter
+        const repeats = planeSize / 2
+        texture.repeat.set(repeats, repeats)
+        const planeGeo = new THREE.PlaneGeometry(planeSize, planeSize)
+        const planeMat = new THREE.MeshPhongMaterial({
+          map: texture,
+          side: THREE.DoubleSide
+        })
+        const mesh = new THREE.Mesh(planeGeo, planeMat)
+        mesh.rotation.x = Math.PI * -0.5
+        scene.add(mesh)
+      }
+
+      {
+        // 方块
+        const cubeSize = 5
+        const cubeGeo = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize)
+        const cubeMat = new THREE.MeshPhongMaterial({ color: '#8f4b2e' })
+        const mesh = new THREE.Mesh(cubeGeo, cubeMat)
+
+        scene.add(mesh)
+      }
+
+      {
+        // 灯光
+        const color = 0xffffff
+        const intensity = 1
+        // 方向光
+        const light = new THREE.DirectionalLight(color, intensity)
+        light.position.set(0, 10, 0)
+        light.target.position.set(-10, -10, -10)
+        scene.add(light)
+        scene.add(light.target)
+      }
+      // 控制相机
+      const controls = new OrbitControls(camera, renderer.domElement)
+
+      // 辅助相机
+      const camera1 =  new THREE.PerspectiveCamera(fov, aspect, near, far) 
+      camera1.position.set(10, 0, 0)
+      camera1.lookAt(0, 0, 0)
+      
+      //xia 
+      function updateCamera() {
+        camera.updateProjectionMatrix()
+      }
+      const gui = new GUI()
+      gui.add(camera, 'fov', 1, 180).onChange(updateCamera)
+      gui.add(camera, 'near', 1, 200).onChange(updateCamera)
+      gui.add(camera, 'far', 1, 200).onChange(updateCamera)
+     
+
+      //位置
+      class PositionGUI {
+        constructor(obj, name) {
+          this.obj = obj
+          this.name = name
+        }
+        get modify() {
+          return this.obj[this.name]
+        }
+        set modify(v) {
+          this.obj[this.name] = v
+        }
+      }
+      const folder = gui.addFolder('全局Position')
+      folder.add(new PositionGUI(camera.position, 'x'), 'modify', 0, 200).name('x')
+      folder.add(new PositionGUI(camera.position, 'y'), 'modify', 0, 200).name('y')
+      folder.add(new PositionGUI(camera.position, 'z'), 'modify', 0, 200).name('z')
+
+      
+
+      const cameraHelper = new THREE.CameraHelper(camera1)
+      // 辅助线加入 场景
+      scene.add(cameraHelper)
+      let cameraBol = true
+      // 点击 切换相机
+      document.querySelector('#cameraBol').addEventListener('click', function () {
+        cameraBol = !cameraBol
+      })
+
+
+      // 渲染
+      function render() {
+        cameraHelper.update()   //此处由原来 controls.update() 改为 cameraHelper.update()
+        if (cameraBol) {
+          renderer.render(scene, camera)
+        } else {
+          renderer.render(scene, camera1)
+        }
+        requestAnimationFrame(render)
+      }
+
+      render()
+
+    </script>
+  </body>
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>学习</title>
+  </head>
+  <body>
+    <p>什么是Three.js</p>
+    <p>
+      Three.js是一个运行在浏览器中的3D库。它使用JavaScript来处理交互，并且利用HTML5的Canvas或者WebGL来绘制3D场景。
+    </p>
+    <p>
+      想要了解Three.js就需要知道WebGL是什么。WebGL是一个只能画点、线和三角形的非常底层的系统。简单来说就是使用WebGL提供的api可以在画布的三维坐标中，绘制点、线、三角行。我们所看见的立体图形都是通过三角行组合而来的。
+    </p>
+    <script type="module">
+      // 官网地址
+      import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r132/build/three.module.js'
+      const canvas = document.querySelector('#c2d')
+      // 渲染器
+      const renderer = new THREE.WebGLRenderer();
+      renderer.setSize( window.innerWidth, window.innerHeight );
+      document.body.appendChild( renderer.domElement );
+
+      const fov = 40 // 视野范围
+      const aspect = 2 // 相机默认值 画布的宽高比
+      const near = 0.1 // 近平面
+      const far = 1000 // 远平面
+      // 透视投影相机
+      const camera = new THREE.PerspectiveCamera(fov, aspect, near, far)
+      
+      
+      // 相机位置  正上方向下看
+
+      camera.position.set(40, 40, 40)
+      camera.lookAt(new THREE.Vector3(0, 0, 0));
+
+         // 创建场景
+      const scene = new THREE.Scene()
+      scene.add(new THREE.AxesHelper(1000))
+
+      // 球体
+      const radius = 8 // 半径
+      const widthSegments = 1 // 经度上的切片数
+      const heightSegments = 1 // 纬度上的切片数
+      // 创建球体
+      const sphereGeometry = new THREE.SphereGeometry(radius, widthSegments, heightSegments)
+      // 材质 emissive 不被光影响的颜色
+      // MeshPhongMaterial 一种用于具有镜面高光的光泽表面的材质。
+      const sunMaterial = new THREE.MeshPhongMaterial({ color: 0x44aa88, emissive: 0xffff00 })
+      // 网格
+      const sunMesh = new THREE.Mesh(sphereGeometry, sunMaterial)
+      sunMesh.position.x = 10
+      scene.add(sunMesh)
+
+      const color = 0xffffff
+      const intensity = 3
+      // 创建光源
+      const light = new THREE.PointLight(color, intensity)
+      // 光源 加入场景
+      scene.add(light)
+
+
+      function render(time) {
+        time *= 0.001
+
+        sunMesh.rotation.y = time
+        sunMesh.rotation.x = time
+
+        // 加载渲染器
+        renderer.render(scene, camera)
+
+        // 开始动画
+        requestAnimationFrame(render)
+      }
+
+      // 开始渲染
+      render()
+
+
+    </script>
+  </body>
+</html>
